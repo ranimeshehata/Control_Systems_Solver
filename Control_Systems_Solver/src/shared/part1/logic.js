@@ -16,6 +16,24 @@
 // //     [0,1,1,1],
 // //     [0,0,0,0]
 // // ]
+let graph = [
+    // [null, 's1', null, 's4'],
+    // [null, null, 's2', null],
+    // [null, null, null, 's3'],
+    // [null, null, null, null]
+    // -----------------------------
+    // [null,'a',null,null],
+    // [null,null,'b','c'],
+    // [null,'d','e','f'],
+    // [null,null,null,null]
+    //-----------------------------
+    [null,2,null,null],
+    [null,null,2,2],
+    [null,2,2,2],
+    [null,null,null,null]
+];
+let inputNode = 0;
+let outputNode = 3;
 
 function convertExpression(expression) {
     expression = expression.replace(/(\d|\))(\()/g, '$1*$2');
@@ -338,24 +356,6 @@ function findNonTouchingLoopsSets(loops) {
 function solve(graph,inputNode,outputNode,isNumbers){
 
     // Example usage
-    graph = [
-        // [null, 's1', null, 's4'],
-        // [null, null, 's2', null],
-        // [null, null, null, 's3'],
-        // [null, null, null, null]
-        // -----------------------------
-        // [null,'a',null,null],
-        // [null,null,'b','c'],
-        // [null,'d','e','f'],
-        // [null,null,null,null]
-        //-----------------------------
-        [null,2,null,null],
-        [null,null,2,2],
-        [null,2,2,2],
-        [null,null,null,null]
-    ];
-    inputNode = 0;
-    outputNode = 3;
     let simplePaths = findAllSimplePaths(graph, 0, 3);
     let loops = findLoopsFromNode(graph, 0)
     console.log(simplePaths);
@@ -401,5 +401,7 @@ function solve(graph,inputNode,outputNode,isNumbers){
 
 
 }
-solve(null,null,null,true);
+
+// demo to a function call
+solve(graph,inputNode,outputNode,true);
 
