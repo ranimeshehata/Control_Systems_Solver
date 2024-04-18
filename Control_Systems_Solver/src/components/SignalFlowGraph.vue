@@ -24,15 +24,33 @@
     <div ref="graph" class="graph"></div>
     <div class="output-section">
       <h3>Forward Pathes: 
-        <li v-for="path in simplePaths">
-          {{ path }}
+        <li v-for="i in Array.from({ length: simplePaths.length }, (value, index) => index)">
+          {{ simplePaths[i] }} = {{ simplePathsGain[i] }}
         </li>
       </h3>
 
-      <h3>Forward Pathes: 
-        <li v-for="path in simplePaths">
-          {{ path }}
+      <h3>Indevedual Loops: 
+        <li v-for="i in Array.from({ length: loops.length }, (value, index) => index)">
+          {{ loops[i] }} = {{ loopsGain[i] }}
         </li>
+      </h3>
+
+      <h3>NonTouching Loops: 
+        <li v-for="loop in nonTouchingLoops">
+          {{ loop }}
+        </li>
+      </h3>
+
+      <h3>Δ: 
+        {{ Δ }}
+      </h3>
+
+      <h3>Δm: 
+        <ol>
+          <li v-for="delta in Δm">
+            {{ delta }}
+          </li>
+        </ol>
       </h3>
 
       <h3>Final value: {{ finalValue }}</h3>
@@ -60,10 +78,15 @@ export default {
       startNode: '',
       endNode: '',
       simplePaths: [],
+      simplePathsGain: [],
       loops: [], 
+      loopsGain: [],
       finalValue: 0,
       nodes: {"A":0},
-      nodesCount: 1
+      nodesCount: 1,
+      nonTouchingLoops: [],
+      Δ: 0,
+      Δm: []
     };
   },
   mounted() {
@@ -324,18 +347,23 @@ export default {
       let negative=false;
       let num = 1;
       let flag = false;
+      let m = 0; 
       for (let i =0;i<n;i++)
       {
           let value='';
           // console.log(loop)
-          if(i<n-1){
-              value = graph[loop[i]][loop[i+1]]+''
-          }else{
-              value = graph[loop[i]][loop[0]]+''
+          try{
+            if(i<n-1){
+                value = graph[loop[i]][loop[i+1]]+''
+            }else{
+                value = graph[loop[i]][loop[0]]+''
+            }
+            // console.log("value is",value);
+            m = value.length;
+            // console.log("length is",m);
+          }catch(error){
+            console.log("Error evaluating the expression:", error.message);
           }
-          // console.log("value is",value);
-          let m = value.length;
-          // console.log("length is",m);
 
           for(let j=0;j<m;j++ )
           {
@@ -386,6 +414,7 @@ export default {
 
       // Iterate over each group of non-touching loops (grouped by size: 1, 2, 3, ...)
       for (let size in allNonTouchingLoops) {
+          console.log('...................................................', size)
           let currentGroup = allNonTouchingLoops[size];
           let sum = '';
 
@@ -395,14 +424,23 @@ export default {
               for (let loop of set) {
                   product = this.ExpMult(product,this.calculateLoopGain(graph,loop)); // Assuming calculateLoopGain computes the gain of a single loop
               }
-              sum = this.ExpAdd(sum,product);
+              try {
+                sum = this.ExpAdd(sum,product);
+              } catch (error) {
+                console.log(error.message)
+              }
+              
           }
           if(sum !== ''){
               sum = '('+ sum+')';
               // Add or subtract this sum from delta depending on the size of the group
               if(sign===-1)
                   sum = '-'+sum;
-              delta= this.ExpAdd(delta,sum);
+              try {
+                delta= this.ExpAdd(delta,sum);
+              } catch (error) {
+                console.log(error.message)
+              }
           }
           sign *= -1; // Alternate the sign for each group
       }
@@ -447,6 +485,11 @@ export default {
           }
       }
     },
+    removeDublicates(arr){
+      return arr.map(JSON.stringify).reverse() // convert to JSON string the array content, then reverse it (to check from end to begining)
+                .filter(function(item, index, arr){ return arr.indexOf(item, index + 1) === -1; }) // check if there is any occurence of the item in whole array
+                .reverse().map(JSON.parse);
+    },
     calculateTransferFunction(isNumbers) {
       let path = [];
       let simplePaths = this.findAllSimplePaths(this.adjacencyMatrix, this.nodes[this.startNode], this.nodes[this.endNode], path);
@@ -454,37 +497,79 @@ export default {
       // console.log(simplePaths);
       
       // console.log(loops);
-      this.loops = loops;
       console.log( this.paths_loops(this.adjacencyMatrix,simplePaths,loops));
+
+      let realLoops = []
+
       for(let loop of loops)
       {
-          console.log("loop is",loop,"it's gain",this.calculateLoopGain(this.adjacencyMatrix,loop));
+          var tempGain = this.calculateLoopGain(this.adjacencyMatrix,loop)
+          console.log("loop is",loop,"it's gain", tempGain);
+          if (tempGain != 0){
+            this.loops[this.loops.length] = loop
+            realLoops[realLoops.length] = loop
+            this.loopsGain.push(tempGain)
+            var size1 = loop.length;
+            for (let j=0; j < size1; j++){
+              var size2 = this.loops.length-1
+              console.log(this.nodes,  this.loops[size2][j])
+              this.loops[size2][j] = this.getKeyByValue(this.nodes, this.loops[size2][j])
+            }
+          }
       }
+      this.loops = this.removeDublicates(this.loops)
+      console.log('>>>>>>>>>>>>>>>>>>>>>>>>',this.loops)
+
       console.log(loops)
       let loops_paths = this.paths_loops(this.adjacencyMatrix,simplePaths,loops);
       console.log("paths loops are",loops_paths);
-      let denom = this.calculateDelta(this.adjacencyMatrix,loops);
-      console.log("main loop gain",denom)
+      
       let numer = ''
       for(let i=0;i<simplePaths.length;i++){
-          let tempGain = this.calculatePathGain(this.adjacencyMatrix,simplePaths[i])
+          var tempGain = this.calculatePathGain(this.adjacencyMatrix,simplePaths[i])
           if (tempGain != 0){
             this.simplePaths[this.simplePaths.length] = simplePaths[i];
-            
+            this.simplePathsGain.push(tempGain)
             var size1 = simplePaths[i].length;
             for (let j=0; j < size1; j++){
               var size2 = this.simplePaths.length-1
               console.log(this.nodes,  this.simplePaths[size2][j])
               this.simplePaths[size2][j] = this.getKeyByValue(this.nodes, this.simplePaths[size2][j])
-              console.log(this.simplePaths[j])
+              //console.log(this.simplePaths[j])
             }
             
           }
+          let delta = this.calculateDelta(this.adjacencyMatrix,loops_paths[i])
+          console.log("path is",simplePaths[i],"it's gain",tempGain, "its loop",loops_paths[i], "its gain",delta);
+          console.log("the final term will be",tempGain,delta)
+          try {
+            numer=this.ExpAdd(numer,this.ExpMult(tempGain,delta))
+          } catch (error) {
+            console.log(error.message)
+          }
           
-          console.log("path is",simplePaths[i],"it's gain",tempGain, "its loop",loops_paths[i], "its gain",this.calculateDelta(this.adjacencyMatrix,loops_paths[i]));
-          console.log("the final term will be",tempGain,this.calculateDelta(this.adjacencyMatrix,loops_paths[i]))
-          numer=this.ExpAdd(numer,this.ExpMult(tempGain,this.calculateDelta(this.adjacencyMatrix,loops_paths[i])));
+          
       }
+      this.simplePaths = this.removeDublicates(this.simplePaths)
+
+      let real_paths_loops = this.paths_loops(this.adjacencyMatrix,this.simplePaths,this.loops)
+      this.Δm = []
+      for (let j=0; j<this.simplePaths.length; j++){
+        var delta = this.calculateDelta(this.adjacencyMatrix,real_paths_loops[j])
+        this.Δm.push(delta)
+      }
+
+      
+      this.nonTouchingLoops = this.findNonTouchingLoopsSets(realLoops) 
+      this.nonTouchingLoops.shift()
+      for (let l=0; l< this.nonTouchingLoops.length; l++)
+        this.nonTouchingLoops[l] = this.removeDublicates(this.nonTouchingLoops[l])
+
+      for (let i=this.nonTouchingLoops.length-1; i>=0; i--){
+        if (this.nonTouchingLoops[i].length == 0)
+         this.nonTouchingLoops.pop()
+      }
+      
       let numer_number;
       let denom_number;
       console.log("final term numerator",numer);
@@ -496,6 +581,8 @@ export default {
               console.log("Error evaluating the expression:", error.message);
           }
       }
+      let denom = this.calculateDelta(this.adjacencyMatrix,realLoops);
+
       console.log("-------------------------------------");
       console.log("final term denominator",denom);
       if(isNumbers){
@@ -508,6 +595,7 @@ export default {
           console.log("Final value is",numer_number/denom_number)
           this.finalValue = numer_number/denom_number
       } 
+      this.Δ = denom_number
     }
   }
 }

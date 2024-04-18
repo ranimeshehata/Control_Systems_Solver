@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "serve": "^14.2.1",
     "vue": "^3.4.21"
   }
 }
