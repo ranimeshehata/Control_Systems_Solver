@@ -119,7 +119,9 @@ export default {
             const unstablePoles = [];
             for (let i = 0; i < n; i++) {
                 if (rhTable[i][0] * rhTable[i + 1][0] < 0) {
-                    unstablePoles.push(rhTable[i + 1][0]);
+                    // Round the unstable pole to 3 decimal points
+            const roundedPole = parseFloat(rhTable[i + 1][0].toFixed(3));
+            unstablePoles.push(roundedPole);
                 }
             }
 
