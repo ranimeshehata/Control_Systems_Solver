@@ -27,9 +27,9 @@ let graph = [
     // [null,'d','e','f'],
     // [null,null,null,null]
     //-----------------------------
-    [null,2,null,null],
-    [null,null,2,2],
-    [null,2,2,2],
+    [null,1,null,null],
+    [null,null,1,1],
+    [null,null,null,1],
     [null,null,null,null]
 ];
 let inputNode = 0;
@@ -163,6 +163,7 @@ function paths_loops(graph, forward_paths, loops) {
         } 
         paths_loops.push(path_loop);      
     }
+    // console.log("paths loops are",paths_loops, "for",forward_paths,loops)
     return paths_loops;
 }
 
@@ -221,7 +222,7 @@ function calculatePathGain(graph, path) {
     else
         result=result.concat(num).concat(exp);
 
-    //console.log("path is: ", path , "with gain:",result);
+    // console.log("path is: ", path , "with gain:",result);
     return result;
 }
 
@@ -286,7 +287,7 @@ function calculateLoopGain(graph, loop) {
         result=result.concat(num).concat(exp);
 
         // exp.split("").sort().join("")
-    //console.log("loop is: ", loop , "with gain:",result);
+    // console.log("loop is: ", loop , "with gain:",result);
     return result;
 }
 
@@ -317,7 +318,7 @@ function calculateDelta(graph,loops) {
         }
         sign *= -1; // Alternate the sign for each group
     }
-
+    // console.log("delta for",loops,"is",delta)
     return '('+delta+')';
 }
 
@@ -349,7 +350,7 @@ function findNonTouchingLoopsSets(loops) {
             }
         }
     }
-
+    // console.log("non touching loops are",nonTouchingLoops)
     return nonTouchingLoops;
 }
 
@@ -358,7 +359,7 @@ function solve(graph,inputNode,outputNode,isNumbers){
     // Example usage
     let simplePaths = findAllSimplePaths(graph, 0, 3);
     let loops = findLoopsFromNode(graph, 0)
-    console.log(simplePaths);
+    // console.log(simplePaths);
     console.log(loops);
     console.log(paths_loops(graph,simplePaths,loops));
     for(let loop of loops)
@@ -399,9 +400,9 @@ function solve(graph,inputNode,outputNode,isNumbers){
         console.log("Final value is",numer_number/denom_number)
     }
 
-
+    return numer+'/'+denom;
 }
 
 // demo to a function call
-solve(graph,inputNode,outputNode,true);
+console.log(solve(graph,inputNode,outputNode,true));
 
