@@ -239,11 +239,16 @@ export function calculateLoopGain(graph, loop) {
     {
         let value='';
         // console.log(loop)
-        if(i<n-1){
-            value = graph[loop[i]][loop[i+1]]+''
-        }else{
-            value = graph[loop[i]][loop[0]]+''
+        try {
+            if(i<n-1){
+                value = graph[loop[i]][loop[i+1]]+''
+            }else{
+                value = graph[loop[i]][loop[0]]+''
+            }
+        } catch (error) {
+            console.log(error.message)
         }
+        
         // console.log("value is",value);
         let m = value.length;
         // console.log("length is",m);
