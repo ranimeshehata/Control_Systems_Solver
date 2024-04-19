@@ -35,11 +35,11 @@ let graph = [
 let inputNode = 0;
 let outputNode = 3;
 
-function convertExpression(expression) {
+export function convertExpression(expression) {
     expression = expression.replace(/(\d|\))(\()/g, '$1*$2');
     return expression;
 }
-function ExpMult(exp1,exp2){
+export function ExpMult(exp1,exp2){
     if(exp1===0 || exp1==='0' || exp2 ===0 || exp2 ==='0') return 0;
     if(exp1===1 || exp1==='' || exp1==="(1)") return exp2;
     if(exp2===1 || exp2==='' || exp2==="(1)") return exp1;
@@ -96,7 +96,7 @@ function ExpMult(exp1,exp2){
     return result;
 }
 
-function ExpAdd(exp1,exp2){
+export function ExpAdd(exp1,exp2){
     if(exp1==='' || exp1===0 || exp1==='0')
         return exp2
     if(exp2==='' || exp2===0 || exp2==='0')
@@ -107,15 +107,15 @@ function ExpAdd(exp1,exp2){
         return exp1+''+exp2;
     return exp1.concat('+'.concat(exp2));
 }
-function areNonTouching(loop1, loop2) {
+export function areNonTouching(loop1, loop2) {
     return !loop1.some(node => loop2.includes(node));
 }
 
-function isNumber (value){
+export function isNumber (value){
     return !isNaN(parseFloat(value)) && isFinite(value);
 }
 
-function findAllSimplePaths(graph, startNode, endNode, path = []) {
+export function findAllSimplePaths(graph, startNode, endNode, path = []) {
     const paths = [];
     path = path.concat(startNode);
 
@@ -133,7 +133,7 @@ function findAllSimplePaths(graph, startNode, endNode, path = []) {
     return paths;
 }
 
-function findLoopsFromNode(graph, startNode, visited = [], path = []) {
+export function findLoopsFromNode(graph, startNode, visited = [], path = []) {
     const loops = [];
     path.push(startNode);
     visited[startNode] = true;
@@ -151,7 +151,7 @@ function findLoopsFromNode(graph, startNode, visited = [], path = []) {
     return loops;
 }
 
-function paths_loops(graph, forward_paths, loops) {
+export function paths_loops(graph, forward_paths, loops) {
     let paths_loops = [];
     let n = graph.length;
     for (let path of forward_paths) {
@@ -167,7 +167,7 @@ function paths_loops(graph, forward_paths, loops) {
     return paths_loops;
 }
 
-function calculatePathGain(graph, path) {
+export function calculatePathGain(graph, path) {
 
     //console.log("-------------------------------------------------------");
     let n = path.length;
@@ -226,7 +226,7 @@ function calculatePathGain(graph, path) {
     return result;
 }
 
-function calculateLoopGain(graph, loop) {
+export function calculateLoopGain(graph, loop) {
 
     // console.log("-------------------------------------------------------");
     let n = loop.length;
@@ -291,7 +291,7 @@ function calculateLoopGain(graph, loop) {
     return result;
 }
 
-function calculateDelta(graph,loops) {
+export function calculateDelta(graph,loops) {
     let allNonTouchingLoops = findNonTouchingLoopsSets(loops);
     let delta = 1;
     let sign = -1;
@@ -323,7 +323,7 @@ function calculateDelta(graph,loops) {
 }
 
 
-function findNonTouchingLoopsSets(loops) {
+export function findNonTouchingLoopsSets(loops) {
     let nonTouchingLoops = [];
     // Initialize nonTouchingLoops with individual loops
     nonTouchingLoops[0] = loops.map(loop => [loop.sort((a, b) => a - b)]); // index 0 for size 1
@@ -354,7 +354,7 @@ function findNonTouchingLoopsSets(loops) {
     return nonTouchingLoops;
 }
 
-function solve(graph,inputNode,outputNode,isNumbers){
+export function solve(graph,inputNode,outputNode,isNumbers){
 
     // Example usage
     let simplePaths = findAllSimplePaths(graph, 0, 3);

@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
     "mathjs": "^12.4.1",
     "rxjs": "^6.5.5",
     "serve": "^14.2.1",
