@@ -1,5 +1,6 @@
 <script setup>
 import SignalFlowGraph from './components/SignalFlowGraph.vue'
+import RouthCriterion from './components/RouthCriterion.vue'
 </script>
 
 <template>
@@ -7,7 +8,8 @@ import SignalFlowGraph from './components/SignalFlowGraph.vue'
     <div class="switch">
       <button @click="switchChange">{{ switchText }}</button>
     </div>
-    <SignalFlowGraph v-if="switch"/>
+    <SignalFlowGraph v-if="isSwitchOn"/>
+    <RouthCriterion v-else/>
     
   </main>
 </template>
@@ -16,14 +18,14 @@ import SignalFlowGraph from './components/SignalFlowGraph.vue'
 export default {
   data() {
     return {
-        switch: true,
+        isSwitchOn: true,
         switchText: 'Routh Stability Criterion'
     }
   },
   methods : {
     switchChange(){
-      this.switch = !this.switch
-      if (this.switch)  this.switchText = 'Routh Stability Criterion'
+      this.isSwitchOn = !this.isSwitchOn
+      if (this.isSwitchOn)  this.switchText = 'Routh Stability Criterion'
       else this.switchText = 'Signal Flow Graph'
     }
   }
