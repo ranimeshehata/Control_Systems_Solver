@@ -16,24 +16,24 @@
 // //     [0,1,1,1],
 // //     [0,0,0,0]
 // // ]
-let graph = [
-    // [null, 's1', null, 's4'],
-    // [null, null, 's2', null],
-    // [null, null, null, 's3'],
-    // [null, null, null, null]
-    // -----------------------------
-    // [null,'a',null,null],
-    // [null,null,'b','c'],
-    // [null,'d','e','f'],
-    // [null,null,null,null]
-    //-----------------------------
-    [null,1,null,null],
-    [null,null,1,1],
-    [null,null,null,1],
-    [null,null,null,null]
-];
-let inputNode = 0;
-let outputNode = 3;
+// let graph = [
+//     // [null, 's1', null, 's4'],
+//     // [null, null, 's2', null],
+//     // [null, null, null, 's3'],
+//     // [null, null, null, null]
+//     // -----------------------------
+//     // [null,'a',null,null],
+//     // [null,null,'b','c'],
+//     // [null,'d','e','f'],
+//     // [null,null,null,null]
+//     //-----------------------------
+//     [null,1,null,null],
+//     [null,null,1,1],
+//     [null,null,null,1],
+//     [null,null,null,null]
+// ];
+// let inputNode = 0;
+// let outputNode = 3;
 
 export function convertExpression(expression) {
     expression = expression.replace(/(\d|\))(\()/g, '$1*$2');
@@ -409,5 +409,5 @@ export function solve(graph,inputNode,outputNode,isNumbers){
 }
 
 // demo to a function call
-console.log(solve(graph,inputNode,outputNode,true));
+// console.log(solve(graph,inputNode,outputNode,true));
 
