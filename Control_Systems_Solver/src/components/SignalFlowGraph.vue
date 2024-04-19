@@ -478,126 +478,126 @@ export default {
 
 //       return nonTouchingLoops;
 //     },
-//     getKeyByValue(object, value) {
-//       for (let prop in object) {
-//           if (object.hasOwnProperty(prop)) {
-//               if (object[prop] === value)
-//                   return prop;
-//           }
-//       }
-//     },
+    getKeyByValue(object, value) {
+      for (let prop in object) {
+          if (object.hasOwnProperty(prop)) {
+              if (object[prop] === value)
+                  return prop;
+          }
+      }
+    },
 //     removeDublicates(arr){
 //       return arr.map(JSON.stringify).reverse() // convert to JSON string the array content, then reverse it (to check from end to begining)
 //                 .filter(function(item, index, arr){ return arr.indexOf(item, index + 1) === -1; }) // check if there is any occurence of the item in whole array
 //                 .reverse().map(JSON.parse);
 //     },
-//     calculateTransferFunction(isNumbers) {
-//       let path = [];
-//       let simplePaths = this.findAllSimplePaths(this.adjacencyMatrix, this.nodes[this.startNode], this.nodes[this.endNode], path);
-//       let loops = this.findLoopsFromNode(this.adjacencyMatrix, 0)
-//       // console.log(simplePaths);
+    calculateTransferFunction(isNumbers) {
+      let path = [];
+      let simplePaths = logic.findAllSimplePaths(this.adjacencyMatrix, this.nodes[this.startNode], this.nodes[this.endNode], path);
+      let loops = logic.findLoopsFromNode(this.adjacencyMatrix, 0)
+      // console.log(simplePaths);
       
-//       // console.log(loops);
-//       console.log( this.paths_loops(this.adjacencyMatrix,simplePaths,loops));
+      // console.log(loops);
+      console.log( logic.paths_loops(this.adjacencyMatrix,simplePaths,loops));
 
-//       let realLoops = []
+      let realLoops = []
 
-//       for(let loop of loops)
-//       {
-//           var tempGain = this.calculateLoopGain(this.adjacencyMatrix,loop)
-//           console.log("loop is",loop,"it's gain", tempGain);
-//           if (tempGain != 0){
-//             this.loops[this.loops.length] = loop
-//             realLoops[realLoops.length] = loop
-//             this.loopsGain.push(tempGain)
-//             var size1 = loop.length;
-//             for (let j=0; j < size1; j++){
-//               var size2 = this.loops.length-1
-//               console.log(this.nodes,  this.loops[size2][j])
-//               this.loops[size2][j] = this.getKeyByValue(this.nodes, this.loops[size2][j])
-//             }
-//           }
-//       }
-//       this.loops = this.removeDublicates(this.loops)
-//       console.log('>>>>>>>>>>>>>>>>>>>>>>>>',this.loops)
+      for(let loop of loops)
+      {
+          var tempGain = logic.calculateLoopGain(this.adjacencyMatrix,loop)
+          console.log("loop is",loop,"it's gain", tempGain);
+          if (tempGain != 0){
+            this.loops[this.loops.length] = loop
+            realLoops[realLoops.length] = loop
+            this.loopsGain.push(tempGain)
+            var size1 = loop.length;
+            for (let j=0; j < size1; j++){
+              var size2 = this.loops.length-1
+              console.log(this.nodes,  this.loops[size2][j])
+              this.loops[size2][j] = this.getKeyByValue(this.nodes, this.loops[size2][j])
+            }
+          }
+      }
+      //this.loops = logic.removeDublicates(this.loops)
+      console.log('>>>>>>>>>>>>>>>>>>>>>>>>',this.loops)
 
-//       console.log(loops)
-//       let loops_paths = this.paths_loops(this.adjacencyMatrix,simplePaths,loops);
-//       console.log("paths loops are",loops_paths);
+      console.log(loops)
+      let loops_paths = logic.paths_loops(this.adjacencyMatrix,simplePaths,loops);
+      console.log("paths loops are",loops_paths);
       
-//       let numer = ''
-//       for(let i=0;i<simplePaths.length;i++){
-//           var tempGain = this.calculatePathGain(this.adjacencyMatrix,simplePaths[i])
-//           if (tempGain != 0){
-//             this.simplePaths[this.simplePaths.length] = simplePaths[i];
-//             this.simplePathsGain.push(tempGain)
-//             var size1 = simplePaths[i].length;
-//             for (let j=0; j < size1; j++){
-//               var size2 = this.simplePaths.length-1
-//               console.log(this.nodes,  this.simplePaths[size2][j])
-//               this.simplePaths[size2][j] = this.getKeyByValue(this.nodes, this.simplePaths[size2][j])
-//               //console.log(this.simplePaths[j])
-//             }
+      let numer = ''
+      for(let i=0;i<simplePaths.length;i++){
+          var tempGain = logic.calculatePathGain(this.adjacencyMatrix,simplePaths[i])
+          if (tempGain != 0){
+            this.simplePaths[this.simplePaths.length] = simplePaths[i];
+            this.simplePathsGain.push(tempGain)
+            var size1 = simplePaths[i].length;
+            for (let j=0; j < size1; j++){
+              var size2 = this.simplePaths.length-1
+              console.log(this.nodes,  this.simplePaths[size2][j])
+              this.simplePaths[size2][j] = this.getKeyByValue(this.nodes, this.simplePaths[size2][j])
+              //console.log(this.simplePaths[j])
+            }
             
-//           }
-//           let delta = this.calculateDelta(this.adjacencyMatrix,loops_paths[i])
-//           console.log("path is",simplePaths[i],"it's gain",tempGain, "its loop",loops_paths[i], "its gain",delta);
-//           console.log("the final term will be",tempGain,delta)
-//           try {
-//             numer=this.ExpAdd(numer,this.ExpMult(tempGain,delta))
-//           } catch (error) {
-//             console.log(error.message)
-//           }
+          }
+          let delta = logic.calculateDelta(this.adjacencyMatrix,loops_paths[i])
+          console.log("path is",simplePaths[i],"it's gain",tempGain, "its loop",loops_paths[i], "its gain",delta);
+          console.log("the final term will be",tempGain,delta)
+          try {
+            numer=logic.ExpAdd(numer,logic.ExpMult(tempGain,delta))
+          } catch (error) {
+            console.log(error.message)
+          }
           
           
-//       }
-//       this.simplePaths = this.removeDublicates(this.simplePaths)
+      }
+      //this.simplePaths = logic.removeDublicates(this.simplePaths)
 
-//       let real_paths_loops = this.paths_loops(this.adjacencyMatrix,this.simplePaths,this.loops)
-//       this.Δm = []
-//       for (let j=0; j<this.simplePaths.length; j++){
-//         var delta = this.calculateDelta(this.adjacencyMatrix,real_paths_loops[j])
-//         this.Δm.push(delta)
-//       }
+      let real_paths_loops = logic.paths_loops(this.adjacencyMatrix,this.simplePaths,this.loops)
+      this.Δm = []
+      for (let j=0; j<this.simplePaths.length; j++){
+        var delta = logic.calculateDelta(this.adjacencyMatrix,real_paths_loops[j])
+        this.Δm.push(delta)
+      }
 
       
-//       this.nonTouchingLoops = this.findNonTouchingLoopsSets(realLoops) 
-//       this.nonTouchingLoops.shift()
-//       for (let l=0; l< this.nonTouchingLoops.length; l++)
-//         this.nonTouchingLoops[l] = this.removeDublicates(this.nonTouchingLoops[l])
+      this.nonTouchingLoops = logic.findNonTouchingLoopsSets(realLoops) 
+      this.nonTouchingLoops.shift()
+      // for (let l=0; l< this.nonTouchingLoops.length; l++)
+      //   this.nonTouchingLoops[l] = logic.removeDublicates(this.nonTouchingLoops[l])
 
-//       for (let i=this.nonTouchingLoops.length-1; i>=0; i--){
-//         if (this.nonTouchingLoops[i].length == 0)
-//          this.nonTouchingLoops.pop()
-//       }
+      for (let i=this.nonTouchingLoops.length-1; i>=0; i--){
+        if (this.nonTouchingLoops[i].length == 0)
+         this.nonTouchingLoops.pop()
+      }
       
-//       let numer_number;
-//       let denom_number;
-//       console.log("final term numerator",numer);
-//       if(isNumbers){
-//           try {
-//               numer_number = eval(this.convertExpression(numer));
-//               console.log("Result of the expression:", numer_number);
-//           } catch (error) {
-//               console.log("Error evaluating the expression:", error.message);
-//           }
-//       }
-//       let denom = this.calculateDelta(this.adjacencyMatrix,realLoops);
+      let numer_number;
+      let denom_number;
+      console.log("final term numerator",numer);
+      if(isNumbers){
+          try {
+              numer_number = eval(logic.convertExpression(numer));
+              console.log("Result of the expression:", numer_number);
+          } catch (error) {
+              console.log("Error evaluating the expression:", error.message);
+          }
+      }
+      let denom = logic.calculateDelta(this.adjacencyMatrix,realLoops);
 
-//       console.log("-------------------------------------");
-//       console.log("final term denominator",denom);
-//       if(isNumbers){
-//           try {
-//               denom_number = eval(this.convertExpression(denom));
-//               console.log("Result of the expression:", denom_number);
-//           } catch (error) {
-//               console.log("Error evaluating the expression:", error.message);
-//           }
-//           console.log("Final value is",numer_number/denom_number)
-//           this.finalValue = numer_number/denom_number
-//       } 
-//       this.Δ = denom_number
-//     }
+      console.log("-------------------------------------");
+      console.log("final term denominator",denom);
+      if(isNumbers){
+          try {
+              denom_number = eval(logic.convertExpression(denom));
+              console.log("Result of the expression:", denom_number);
+          } catch (error) {
+              console.log("Error evaluating the expression:", error.message);
+          }
+          console.log("Final value is",numer_number/denom_number)
+          this.finalValue = numer_number/denom_number
+      } 
+      this.Δ = denom_number
+    }
   }
 }
 </script>
