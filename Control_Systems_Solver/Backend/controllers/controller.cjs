@@ -196,7 +196,12 @@ const pasre = (equ) =>{
         else coeff[p] += c;
     }
 
-    coeff.forEach(e =>{ if(e === undefined) e = 0});
+    if(coeff.includes(undefined)){
+        for (let i = 0; i < coeff.length; i++) {
+            if(coeff[i] === undefined)
+                coeff[i] = 0;
+        }
+    }
 
     return coeff.reverse();
 }
