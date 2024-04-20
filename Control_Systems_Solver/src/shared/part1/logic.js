@@ -415,12 +415,13 @@ export function solve(graph,inputNode,outputNode,isNumbers){
             // [null,null,null,null]
             [-1,5,null],
             [-5,-1,4],
-            [null,null,null],
+            [null,null,null]
         ];
         let inputNode = 0;
         let outputNode = 2;
         
         // demo to a function call
+        console.log(graph, inputNode, outputNode);
         console.log(solve(graph,inputNode,outputNode,true));
         // console.log(findAllSimplePaths(graph,0,2))
         // console.log(ExpMult('-1','-1'))

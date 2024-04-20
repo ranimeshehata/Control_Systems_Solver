@@ -11,14 +11,16 @@
         <label class="label">Add Edge:</label>
         <input type="text" v-model="sourceNode" placeholder="Source node" class="node-input">
         <input type="text" v-model="targetNode" placeholder="Target node" class="node-input">
-        <input type="number" v-model.number="edgeWeight" placeholder="Edge weight" class="weight-input">
+        <input type="number" v-if="weightTypeToggeller" v-model.number="edgeWeight" placeholder="Edge weight (numeric)" class="weight-input">
+        <input type="text" v-if="!weightTypeToggeller" v-model="edgeVar" placeholder="Edge weight (non-numeric)" class="weight-input">
+        <button @click="switchWeightType" class="custom-button">{{weightType}}</button>
         <button @click="addEdge" class="custom-button">Add</button>
       </div>
       <div class="t-f-input-section">
         <label class="label">Transfer Function:</label>
         <input type="text" v-model.number="startNode" placeholder="Starting Node" class="node-input">
         <input type="text" v-model.number="endNode" placeholder="Ending Node" class="node-input">
-        <button @click="calculateTransferFunction(true)" class="custom-button">Calculate</button>
+        <button @click="calculateTransferFunction(this.weightTypeToggeller)" class="custom-button">Calculate</button>
       </div>
     </div>
     <div ref="graph" class="graph"></div>
@@ -69,6 +71,9 @@ export default {
       sourceNode: '',
       targetNode: '',
       edgeWeight: 1,
+      edgeVar: '',
+      weightType: 'Non-numeric',
+      weightTypeToggeller: true,
       realtions: `A;`,
       digraph: '',
       adjacencyMatrix: [],
@@ -97,6 +102,16 @@ export default {
     this.renderGraph();
   },
   methods: {
+    switchWeightType(){
+      if (this.weightTypeToggeller){
+        this.weightTypeToggeller = !this.weightTypeToggeller
+        this.weightType = 'Numeric'
+      }
+      else{
+        this.weightTypeToggeller = !this.weightTypeToggeller
+        this.weightType = 'Non-numeric'
+      }
+    },
     renderGraph() {
       const viz = new Viz({ Module, render });
       viz.renderSVGElement(this.digraph)
@@ -105,7 +120,7 @@ export default {
           this.$refs.graph.appendChild(element);
         })
         .catch(error => {
-          console.error('Error rendering graph:', error);
+          console.error('Error rendering graph:', error)
         });
     },
     addNode() {
@@ -120,11 +135,15 @@ export default {
     addEdge() {
       if (this.sourceNode.trim() === '' || this.targetNode.trim() === '') return;
       const edge = `${this.sourceNode} -> ${this.targetNode}`;
-      this.realtions += `\n${edge}[label="${this.edgeWeight}"];`;
+      if (this.weightTypeToggeller)
+        this.realtions += `\n${edge}[label="${this.edgeWeight}"];`;
+      else 
+        this.realtions += `\n${edge}[label="${this.edgeVar}"];`;
       this.updateGraph();
       this.sourceNode = '';
       this.targetNode = '';
-      this.edgeWeight = 1
+      this.edgeWeight = 1;
+      this.edgeVar = '';
     },
     updateGraph() {
       this.digraph = `digraph {
@@ -169,63 +188,60 @@ export default {
                 .filter(function(item, index, arr){ return arr.indexOf(item, index + 1) === -1; }) // check if there is any occurence of the item in whole array
                 .reverse().map(JSON.parse);
     },
+    adjacencyMatrixToGraph(){
+      for (let i=0; i<this.adjacencyMatrix.length; i++){
+        for (let j=0; j<this.adjacencyMatrix[i].length; j++){
+          if (this.adjacencyMatrix[i][j] === 0) 
+            this.adjacencyMatrix[i][j] = null;
+        }
+      }
+    },
     calculateTransferFunction(isNumbers) {
-      let path = [];
+      this.adjacencyMatrixToGraph();
+
       let startNode=this.nodes[this.startNode];
       let endNode=this.nodes[this.endNode];
+
       console.log("STARTING AND ENDING NODE",startNode,endNode)
-      let simplePaths = logic.findAllSimplePaths(this.adjacencyMatrix, startNode, endNode, path);
-      let loops = logic.findLoopsFromNode(this.adjacencyMatrix, 0);
+      console.log('adjacencyMatrix= ',this.adjacencyMatrix)
+
+      let simplePaths = logic.findAllSimplePaths(this.adjacencyMatrix, startNode, endNode);
+      
+      let loops = logic.findLoopsFromNode(this.adjacencyMatrix, startNode);
       let paths_loops = logic.paths_loops(this.adjacencyMatrix,simplePaths,loops);
-      console.log(this.adjacencyMatrix);
       console.log("simple paths are",simplePaths);
       console.log("loops are",loops);
       console.log("paths loops are",paths_loops);
       
-      // console.log(simplePaths);
-      
-      // console.log(loops);
-
-      let realLoops = []
-
-      for(let loop of loops)
+      //ADJASTING LOOPS TO BE PRINTED
+      for(let i=0; i<loops.length; i++)
       {
-          var tempGain = logic.calculateLoopGain(this.adjacencyMatrix,loop)
-          console.log("loop is",loop,"it's gain", tempGain);
-          if (tempGain != 0){
-            this.loops[this.loops.length] = loop
-            realLoops[realLoops.length] = loop
-            this.loopsGain.push(tempGain)
-            var size1 = loop.length;
-            for (let j=0; j < size1; j++){
-              var size2 = this.loops.length-1
-              console.log(this.nodes,  this.loops[size2][j])
-              this.loops[size2][j] = this.getKeyByValue(this.nodes, this.loops[size2][j])
-            }
+          var tempGain = logic.calculateLoopGain(this.adjacencyMatrix,loops[i])
+          console.log("loop is",loops[i],"it's gain", tempGain);
+          this.loops[i] = []
+          this.loopsGain.push(tempGain)
+          for (let j=0; j < loops[i].length; j++){
+            console.log(this.nodes,  loops[i][j])
+            this.loops[i][j] = this.getKeyByValue(this.nodes, loops[i][j])
           }
       }
-      //this.loops = logic.removeDublicates(this.loops)
-      console.log('>>>>>>>>>>>>>>>>>>>>>>>>',this.loops)
 
       console.log(loops)
       let loops_paths = logic.paths_loops(this.adjacencyMatrix,simplePaths,loops);
       console.log("paths loops are",loops_paths);
       
       let numer = ''
+      
+      //ADJASTIG SIMPLE PATHS TO BE PRINTED
       for(let i=0;i<simplePaths.length;i++){
-          var tempGain = logic.calculatePathGain(this.adjacencyMatrix,simplePaths[i])
-          if (tempGain != 0){
-            this.simplePaths[this.simplePaths.length] = simplePaths[i];
+          let tempGain = logic.calculatePathGain(this.adjacencyMatrix,simplePaths[i])
             this.simplePathsGain.push(tempGain)
-            var size1 = simplePaths[i].length;
-            for (let j=0; j < size1; j++){
-              var size2 = this.simplePaths.length-1
-              console.log(this.nodes,  this.simplePaths[size2][j])
-              this.simplePaths[size2][j] = this.getKeyByValue(this.nodes, this.simplePaths[size2][j])
-              //console.log(this.simplePaths[j])
+            this.simplePaths[i] = []
+            for (let j=0; j < simplePaths[i].length; j++){
+              console.log(this.nodes,  simplePaths[i][j])
+              this.simplePaths[i][j] = this.getKeyByValue(this.nodes, simplePaths[i][j])
             }
             
-          }
           let delta = logic.calculateDelta(this.adjacencyMatrix,loops_paths[i])
           console.log("path is",simplePaths[i],"it's gain",tempGain, "its loop",loops_paths[i], "its gain",delta);
           console.log("the final term will be",tempGain,delta)
@@ -237,9 +253,9 @@ export default {
           
           
       }
-      //this.simplePaths = logic.removeDublicates(this.simplePaths)
+      
 
-      let real_paths_loops = logic.paths_loops(this.adjacencyMatrix,this.simplePaths,this.loops)
+      let real_paths_loops = logic.paths_loops(this.adjacencyMatrix, simplePaths, loops)
       this.Δm = []
       for (let j=0; j<this.simplePaths.length; j++){
         var delta = logic.calculateDelta(this.adjacencyMatrix,real_paths_loops[j])
@@ -247,16 +263,28 @@ export default {
       }
 
       
-      this.nonTouchingLoops = logic.findNonTouchingLoopsSets(realLoops) 
-      this.nonTouchingLoops.shift()
-      // for (let l=0; l< this.nonTouchingLoops.length; l++)
-      //   this.nonTouchingLoops[l] = logic.removeDublicates(this.nonTouchingLoops[l])
-
-      for (let i=this.nonTouchingLoops.length-1; i>=0; i--){
-        if (this.nonTouchingLoops[i].length == 0)
-         this.nonTouchingLoops.pop()
-      }
+      let nonTouchingLoops = logic.findNonTouchingLoopsSets(loops) 
+      nonTouchingLoops.shift()
       
+      //ADJUSTING NONTOUCHING LOOPS TO BE PRINTED
+      
+      for (let i=0; i<nonTouchingLoops.length; i++){
+        if (nonTouchingLoops[i].length == 0){
+          nonTouchingLoops.pop()
+          break;
+        }
+        this.nonTouchingLoops[i] = []
+        for (let j=0; j<nonTouchingLoops[i].length; j++){
+          this.nonTouchingLoops[i][j] = []
+          for (let k=0; k<nonTouchingLoops[i][j].length; k++){
+            this.nonTouchingLoops[i][j][k] = []
+            for (let l=0; l<nonTouchingLoops[i][j][k].length; l++){
+              this.nonTouchingLoops[i][j][k][l] = this.getKeyByValue(this.nodes, nonTouchingLoops[i][j][k][l])
+            }
+          }
+        }
+      }
+
       let numer_number;
       let denom_number;
       console.log("final term numerator",numer);
@@ -268,7 +296,7 @@ export default {
               console.log("Error evaluating the expression:", error.message);
           }
       }
-      let denom = logic.calculateDelta(this.adjacencyMatrix,realLoops);
+      let denom = logic.calculateDelta(this.adjacencyMatrix,loops);
 
       console.log("-------------------------------------");
       console.log("final term denominator",denom);
@@ -281,8 +309,10 @@ export default {
           }
           console.log("Final value is",numer_number/denom_number)
           this.finalValue = numer_number/denom_number
+          this.Δ = denom_number
       } 
-      this.Δ = denom_number
+      else  
+        this.Δ =  denom
     }
   }
 }
