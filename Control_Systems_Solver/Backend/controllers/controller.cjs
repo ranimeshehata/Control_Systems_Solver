@@ -13,6 +13,7 @@ const { createRequire } = require('module');
 const { python } = require('pythonia');
 // const require = createRequire(import.meta.url);
 
+let digit = 3;
 
 // initial table
 const routhInitalTable = (coff) => {
@@ -112,6 +113,21 @@ const routhStability = (table) =>{
 
 // get roots
 
+const round = (num , d) =>{
+    let e = 0;
+    if (String(num).includes("e")){
+        e = Number(String(num).split("e")[1])
+        num = e = Number(String(num).split("e")[0])
+    }
+
+    num = Math.round((num * 10**d))/ (10**d);
+    num = String(num);
+
+    if(e !== 0) num += "e"+String(e);
+
+    return num; 
+}
+
 const getRoots = async (coeff) => {
     
     const np =  await python('numpy');
@@ -134,17 +150,17 @@ const getRootsArray = (poles) =>{
         output[i][0] = (output[i][1] > 0);
 
         if(output[i][1] === 0 && output[i][2] !== 0 ) output[i][1] = "";
-        else output[i][1] = String(output[i][1]) ;
+        else output[i][1] = round(output[i][1],digit) ;
 
         if(output[i][2] > 0 ) {
             
             if(output[i][1] !== "") output[i][1] += "+";
 
-            if(output[i][2] !== 1) output[i][1] += String(output[i][2]) + "i";
+            if(output[i][2] !== 1) output[i][1] += round(output[i][2],digit) + "i";
             else output[i][1] +=   "i";
         }
         else if(output[i][2] < 0 ){
-            if(output[i][2] !== -1) output[i][1] += String(output[i][2]) + "i";
+            if(output[i][2] !== -1) output[i][1] += round(output[i][2],digit) + "i";
             else output[i][1] += "-" +  "i";
         }
 
@@ -176,7 +192,8 @@ const pasre = (equ) =>{
         else if(p.search(/\d+/g) !== -1) p = Number(p);
         else p = 1
 
-        coeff[p] = c;
+        if(coeff[p] === undefined )coeff[p] = c;
+        else coeff[p] += c;
     }
 
     coeff.forEach(e =>{ if(e === undefined) e = 0});
@@ -204,16 +221,18 @@ const routh = async (equ) =>{
         table:routhFinalTable(routhInitalTable(c),c.length-1),
         postivePoles: [],
         negativePoles: [],
-        signChange : 0, // number of change in sign in first column 
-        isStable: true
+        stabiltyCheck : 0, // number of change in sign in first column 
+        isStabile: true
     }
     
-    output.signChange = routhStability(output.table);
-    output.isStable = (output.signChange === 0)
+    output.stabiltyCheck = routhStability(output.table);
     for (let i = 0; i < p.length; i++) {
         if(p[i][0]) output.postivePoles.push(p[i][1]);
         else output.negativePoles.push(p[i][1]);
     }
+
+    output.isStabile =
+        (output.stabiltyCheck === 0 ||(output.stabiltyCheck === -1  && output.postivePoles.length === 0))
 
     python.exit();
     return output ;
