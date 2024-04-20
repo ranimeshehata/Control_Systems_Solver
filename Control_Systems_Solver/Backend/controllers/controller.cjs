@@ -1,10 +1,17 @@
 // write the rest of the functions here and then put them in module.exports 
 // you have access to the chs function by this req.body.chsFunction
 
-import { createRequire } from 'module';
-import { python } from 'pythonia';
+// import { createRequire } from 'module';
+// import { python } from 'pythonia';
+// const python = require('pythonia')
+// const createRequire = require('module')
+// CommonJS require
+const { createRequire } = require('module');
+// const require = createRequire(import.meta.url);
 
-const require = createRequire(import.meta.url);
+// Assuming pythonia can be required (if it exists and is a CJS module)
+const { python } = require('pythonia');
+// const require = createRequire(import.meta.url);
 
 
 // initial table
@@ -197,12 +204,12 @@ const routh = async (equ) =>{
         table:routhFinalTable(routhInitalTable(c),c.length-1),
         postivePoles: [],
         negativePoles: [],
-        stabiltyCheck : 0, // number of change in sign in first column 
-        isStabile: true
+        signChange : 0, // number of change in sign in first column 
+        isStable: true
     }
     
-    output.stabiltyCheck = routhStability(output.table);
-    output.isStabile = (output.stabiltyCheck === 0)
+    output.signChange = routhStability(output.table);
+    output.isStable = (output.signChange === 0)
     for (let i = 0; i < p.length; i++) {
         if(p[i][0]) output.postivePoles.push(p[i][1]);
         else output.negativePoles.push(p[i][1]);

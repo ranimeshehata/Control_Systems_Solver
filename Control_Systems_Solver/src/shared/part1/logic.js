@@ -1,70 +1,39 @@
-// // let adjacency_matrix = [
-// //     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-// //     [1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-// //     [0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
-// //     [0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
-// //     [0, 0, 0, 1, 0, 1, 0, 0, 0, 0],
-// //     [0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
-// //     [0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
-// //     [0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
-// //     [0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-// //     [0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
-// // ];
-// // let adjacency_matrix2 = [
-// //     [0,1,0,0],
-// //     [0,0,1,1],
-// //     [0,1,1,1],
-// //     [0,0,0,0]
-// // ]
-// let graph = [
-//     // [null, 's1', null, 's4'],
-//     // [null, null, 's2', null],
-//     // [null, null, null, 's3'],
-//     // [null, null, null, null]
-//     // -----------------------------
-//     // [null,'a',null,null],
-//     // [null,null,'b','c'],
-//     // [null,'d','e','f'],
-//     // [null,null,null,null]
-//     //-----------------------------
-//     [null,1,null,null],
-//     [null,null,1,1],
-//     [null,null,null,1],
-//     [null,null,null,null]
-// ];
-// let inputNode = 0;
-// let outputNode = 3;
-
+import * as math from 'mathjs';
 export function convertExpression(expression) {
     expression = expression.replace(/(\d|\))(\()/g, '$1*$2');
     return expression;
 }
 export function ExpMult(exp1,exp2){
     if(exp1===0 || exp1==='0' || exp2 ===0 || exp2 ==='0') return 0;
-    if(exp1===1 || exp1==='' || exp1==="(1)") return exp2;
-    if(exp2===1 || exp2==='' || exp2==="(1)") return exp1;
+    if((exp1===1 || exp1==='' || exp1==="(1)") && exp2!=='') return exp2;
+    if((exp2===1 || exp2==='' || exp2==="(1)") && exp1!=='') return exp1;
+    if(isNumber(exp1)&&isNumber(exp2)) return exp1*exp2
     let exp = '';
     let num = 1;
-    let expn = [exp1,exp2]
+    let expn = [exp1+'',exp2+'']
     let negative=false;
     let flag=false;
+    // console.log("entering function")
     for(let i=0 ; i<2;i++)
     {
         let n = expn[i].length;
         let value = expn[i];
+        // console.log("In function with value",value)
         for(let j=0;j<n;j++ )
         {
-            //console.log("entered here with value:",value[j]);
+            // console.log("entered here with value:",value[j]);
             if(value[j]==='-' && n>1 && j===0 && isNumber(value[j+1])){
+                // console.log("toggle flag")
                 flag=true;
                 negative=!negative;
                 j++;
             }
             if (isNumber(value[j]) && (j===0 || flag)){
-                //console.log("it is a number")
+                // console.log("it is a number")
                 flag = false;
                 let number='';
                 number=number.concat(value[j]);
+                // console.log("number is",number)
                 while(j<n-1 && isNumber(value[j+1]))
                 {
                     number=number.concat(value[j+1]);
@@ -74,20 +43,20 @@ export function ExpMult(exp1,exp2){
             }
             else{
                 exp=exp.concat(value[j]);
-                //console.log("it is not and expression is:",exp,"while value is:",value[j])
+                console.log("it is not and expression is:",exp,"while value is:",value[j])
             }
         }
     }
-    // console.log("num is",num)
-    // console.log("exp is",exp)
+    console.log("num is",num)
+    console.log("exp is",exp)
     let result = '';
     if(negative)
         num*=-1;
     if(num===0)
         result=0;
-    else if(num === -1)
+    else if(num === -1 && exp!=='')
         result=result.concat('-').concat(exp);
-    else if(num === 1)
+    else if(num === 1 && exp!=='')
         result=result.concat(exp);
     else
         result=result.concat(num).concat(exp);
@@ -298,19 +267,23 @@ export function calculateLoopGain(graph, loop) {
 
 export function calculateDelta(graph,loops) {
     let allNonTouchingLoops = findNonTouchingLoopsSets(loops);
+    // console.log("non touching loops are",allNonTouchingLoops)
+    for (let i = 0; i < allNonTouchingLoops.length-1; i++) {
+        console.log("non touching loops of index",i+1,"are",allNonTouchingLoops[i])
+    }
     let delta = 1;
     let sign = -1;
-
     // Iterate over each group of non-touching loops (grouped by size: 1, 2, 3, ...)
-    for (let size in allNonTouchingLoops) {
-        let currentGroup = allNonTouchingLoops[size];
+    for (let i = 0; i < allNonTouchingLoops.length-1; i++) {
+        // console.log("index is",i)
+        let currentGroup = allNonTouchingLoops[i];
         let sum = '';
-
         // Calculate the sum of products of loop gains for the current group
         for (let set of currentGroup) {
             let product = '';
             for (let loop of set) {
                 product = ExpMult(product,calculateLoopGain(graph,loop)); // Assuming calculateLoopGain computes the gain of a single loop
+                // console.log("at function and loop gain for this loop",loop,"is",calculateLoopGain(graph,loop),"and product becomes",product)
             }
             sum = ExpAdd(sum,product);
         }
@@ -318,12 +291,13 @@ export function calculateDelta(graph,loops) {
             sum = '('+ sum+')';
             // Add or subtract this sum from delta depending on the size of the group
             if(sign===-1)
-                sum = '-'+sum;
-            delta= ExpAdd(delta,sum);
+            sum = '-'+sum;
+        delta= ExpAdd(delta,sum);
         }
+    // console.log("Entering with",currentGroup,"that has sum",sum,"with index of",i)
         sign *= -1; // Alternate the sign for each group
     }
-    // console.log("delta for",loops,"is",delta)
+    console.log("delta for",loops,"is",delta)
     return '('+delta+')';
 }
 
@@ -362,16 +336,14 @@ export function findNonTouchingLoopsSets(loops) {
 export function solve(graph,inputNode,outputNode,isNumbers){
 
     // Example usage
-    let simplePaths = findAllSimplePaths(graph, 0, 3);
-    let loops = findLoopsFromNode(graph, 0)
-    // console.log(simplePaths);
-    console.log(loops);
-    console.log(paths_loops(graph,simplePaths,loops));
+    let simplePaths = findAllSimplePaths(graph, inputNode, outputNode);
+    let loops = findLoopsFromNode(graph, inputNode)
+    console.log("paths are",simplePaths);
+    console.log("loops are",loops)
     for(let loop of loops)
     {
         console.log("loop is",loop,"it's gain",calculateLoopGain(graph,loop));
     }
-    console.log(loops)
     let loops_paths = paths_loops(graph,simplePaths,loops);
     console.log("paths loops are",loops_paths);
     let denom = calculateDelta(graph,loops);
@@ -388,7 +360,7 @@ export function solve(graph,inputNode,outputNode,isNumbers){
     if(isNumbers){
         try {
             numer_number = eval(convertExpression(numer));
-            console.log("Result of the expression:", numer_number);
+            console.log("Result of the expression of numerator:", numer_number);
         } catch (error) {
             console.log("Error evaluating the expression:", error.message);
         }
@@ -398,16 +370,57 @@ export function solve(graph,inputNode,outputNode,isNumbers){
     if(isNumbers){
         try {
             denom_number = eval(convertExpression(denom));
-            console.log("Result of the expression:", denom_number);
+            console.log("Result of the expression of denominator:", denom_number);
+            console.log("Final value is",math.round(numer_number/denom_number,3))
         } catch (error) {
             console.log("Error evaluating the expression:", error.message);
         }
-        console.log("Final value is",numer_number/denom_number)
     }
 
     return numer+'/'+denom;
 }
 
-// demo to a function call
-// console.log(solve(graph,inputNode,outputNode,true));
-
+// // let adjacency_matrix = [
+    // //     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    // //     [1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+    // //     [0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
+    // //     [0, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+    // //     [0, 0, 0, 1, 0, 1, 0, 0, 0, 0],
+    // //     [0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+    // //     [0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
+    // //     [0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+    // //     [0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+    // //     [0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+    // // ];
+    // // let adjacency_matrix2 = [
+        // //     [0,1,0,0],
+        // //     [0,0,1,1],
+        // //     [0,1,1,1],
+        // //     [0,0,0,0]
+        // // ]
+        let graph = [
+            //     // [null, 's1', null, 's4'],
+            //     // [null, null, 's2', null],
+            //     // [null, null, null, 's3'],
+            //     // [null, null, null, null]
+            //     // -----------------------------
+            //     // [null,'a',null,null],
+            //     // [null,null,'b','c'],
+            //     // [null,'d','e','f'],
+            //     // [null,null,null,null]
+            //     //-----------------------------
+            // [null,1,null,null],
+            // [null,null,1,1],
+            // [null,null,null,1],
+            // [null,null,null,null]
+            [-1,5,null],
+            [-5,-1,4],
+            [null,null,null],
+        ];
+        let inputNode = 0;
+        let outputNode = 2;
+        
+        // demo to a function call
+        console.log(solve(graph,inputNode,outputNode,true));
+        // console.log(findAllSimplePaths(graph,0,2))
+        // console.log(ExpMult('-1','-1'))
