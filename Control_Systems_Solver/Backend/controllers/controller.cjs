@@ -221,18 +221,18 @@ const routh = async (equ) =>{
         table:routhFinalTable(routhInitalTable(c),c.length-1),
         postivePoles: [],
         negativePoles: [],
-        stabiltyCheck : 0, // number of change in sign in first column 
+        signChange : 0, // number of change in sign in first column 
         isStabile: true
     }
     
-    output.stabiltyCheck = routhStability(output.table);
+    output.signChange = routhStability(output.table);
     for (let i = 0; i < p.length; i++) {
         if(p[i][0]) output.postivePoles.push(p[i][1]);
         else output.negativePoles.push(p[i][1]);
     }
 
     output.isStabile =
-        (output.stabiltyCheck === 0 ||(output.stabiltyCheck === -1  && output.postivePoles.length === 0))
+        (output.signChange === 0 ||(output.signChange === -1  && output.postivePoles.length === 0))
 
     python.exit();
     return output ;
