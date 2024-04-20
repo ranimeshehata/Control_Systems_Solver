@@ -97,16 +97,13 @@ const routhFinalTable = (table , degree) =>{
 const routhStability = (table) =>{
     let stabilty = 0;
 
-    let zero = false;
     for(let i = 1; i < table.length; i++) {
         if(table[i-1][0] === 0){
             if(table[i-2][0] * table[i][0] < 0) stabilty++;
         }
         if(table[i-1][0] * table[i][0] < 0) stabilty++;
-        if(table[i-1][0] * table[i][0] === 0) zero = true;
     }
-    if(zero) stabilty*=-1;
-    if(zero && stabilty === 0) return -1;
+    
     return stabilty;
 }
 
