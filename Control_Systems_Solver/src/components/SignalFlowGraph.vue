@@ -23,7 +23,9 @@
         <button @click="calculateTransferFunction(this.weightTypeToggeller)" class="custom-button">Calculate</button>
       </div>
     </div>
-    <div ref="graph" class="graph"></div>
+    <div>
+      <div ref="graph" class="graph"></div>
+    </div>
     <div class="output-section">
       <h3>Forward Pathes: 
         <li v-for="i in Array.from({ length: simplePaths.length }, (value, index) => index)">
@@ -160,13 +162,16 @@ export default {
       this.realtions.match(/-> (\w+)/g).forEach(match => {
         nodes.add(match.split(' ')[1]);
       });
-      console.log(nodes);
+      console.log('nodes go here', nodes);
       // create an adjacency matrix
       this.adjacencyMatrix = Array.from(nodes).map(source => {
         return Array.from(nodes).map(target => {
           const edge = `${source} -> ${target}`;
           const match = this.realtions.match(new RegExp(`${edge}\\[label="(.+)"\\];`));
-          return match ? parseInt(match[1]) : 0;
+          if (this.weightTypeToggeller)
+            return match ? parseInt(match[1]) : null;
+          else 
+            return match ? match[1] : null;
         });
       });
       console.log(this.adjacencyMatrix);
@@ -197,7 +202,7 @@ export default {
       }
     },
     calculateTransferFunction(isNumbers) {
-      this.adjacencyMatrixToGraph();
+      //this.adjacencyMatrixToGraph();
 
       let startNode=this.nodes[this.startNode];
       let endNode=this.nodes[this.endNode];
@@ -311,8 +316,10 @@ export default {
           this.finalValue = numer_number/denom_number
           this.Δ = denom_number
       } 
-      else  
+      else {
+        this.finalValue = '('+ numer +')/(' + denom + ')'
         this.Δ =  denom
+      }
     }
   }
 }
